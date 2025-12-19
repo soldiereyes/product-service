@@ -21,8 +21,10 @@ logging:
     root: ${LOG_LEVEL:INFO}
     org.springframework.web: ${LOG_LEVEL_WEB:INFO}
     com.techsolution.product_service: ${LOG_LEVEL_APP:INFO}
+    com.techsolution.product_service.application.usecase: ${LOG_LEVEL_USECASE:DEBUG}
+    com.techsolution.product_service.infrastructure.persistence: ${LOG_LEVEL_REPOSITORY:DEBUG}
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 server:
   port: ${SERVER_PORT:8081}
