@@ -4,12 +4,16 @@ import com.techsolution.product_service.domain.Product;
 import com.techsolution.product_service.domain.ProductRepository;
 import com.techsolution.product_service.domain.exception.ResourceNotFoundException;
 import com.techsolution.product_service.interfaces.dto.ProductResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
 public class GetProductByIdUseCase {
+    private static final Logger logger = LoggerFactory.getLogger(GetProductByIdUseCase.class);
+    
     private final ProductRepository productRepository;
 
     public GetProductByIdUseCase(ProductRepository productRepository) {
@@ -17,9 +21,12 @@ public class GetProductByIdUseCase {
     }
 
     public ProductResponse execute(UUID id) {
+        logger.debug("Executing GetProductByIdUseCase for product id: {}", id);
+        
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", id));
 
+        logger.debug("Product found with id: {}", id);
         return toResponse(product);
     }
 
@@ -33,4 +40,3 @@ public class GetProductByIdUseCase {
         );
     }
 }
-
