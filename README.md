@@ -211,3 +211,5 @@ O serviço roda na porta **8081** por padrão, configurável via `SERVER_PORT`.
 
 Este serviço está preparado para ser consumido pelo **stock-query-service**, que consultará informações de produtos e estoque através das APIs REST expostas.
 
+
+
