@@ -1,0 +1,40 @@
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: product-service-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-product_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  product-service:
+    build: .
+    container_name: product-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-product_db}
+      DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      SERVER_PORT: ${SERVER_PORT:-8081}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    ports:
+      - "${SERVER_PORT:-8081}:8081"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+
