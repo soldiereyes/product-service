@@ -6,6 +6,9 @@ import com.techsolution.product_service.infrastructure.persistence.entity.Produc
 import com.techsolution.product_service.infrastructure.persistence.jpa.JpaProductRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -48,6 +51,26 @@ public class ProductRepositoryImpl implements ProductRepository {
                 .toList();
         logger.debug("Found {} products", products.size());
         return products;
+    }
+
+    @Override
+    public ProductRepository.PageResult<Product> findAll(int page, int size) {
+        logger.debug("Finding products with pagination - page: {}, size: {}", page, size);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductEntity> pageResult = jpaProductRepository.findAll(pageable);
+        
+        List<Product> products = pageResult.getContent().stream()
+                .map(this::toDomain)
+                .toList();
+        
+        logger.debug("Found {} products (page {} of {})", 
+                products.size(), page, pageResult.getTotalPages());
+        
+        return new ProductRepository.PageResult<>(
+                products,
+                pageResult.getTotalElements(),
+                pageResult.getTotalPages()
+        );
     }
 
     @Override

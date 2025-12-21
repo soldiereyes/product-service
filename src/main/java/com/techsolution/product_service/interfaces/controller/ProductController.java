@@ -6,6 +6,7 @@ import com.techsolution.product_service.application.usecase.GetProductByIdUseCas
 import com.techsolution.product_service.application.usecase.ListProductsUseCase;
 import com.techsolution.product_service.application.usecase.UpdateProductUseCase;
 import com.techsolution.product_service.interfaces.dto.CreateProductRequest;
+import com.techsolution.product_service.interfaces.dto.PageResponse;
 import com.techsolution.product_service.interfaces.dto.ProductResponse;
 import com.techsolution.product_service.interfaces.dto.UpdateProductRequest;
 import jakarta.validation.Valid;
@@ -20,6 +21,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/products")
+@CrossOrigin(origins = {"http://localhost:4200", "http://localhost:3000"})
 public class ProductController {
     private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
     
@@ -71,10 +73,23 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductResponse>> list() {
-        logger.info("Listing all products");
-        List<ProductResponse> response = listProductsUseCase.execute();
-        logger.info("Found {} products", response.size());
+    public ResponseEntity<?> list(
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "20") int size
+    ) {
+        logger.info("Listing products - page: {}, size: {}", page, size);
+        
+        // Validação de parâmetros
+        if (page < 0) {
+            return ResponseEntity.badRequest().body("Page must be greater than or equal to 0");
+        }
+        if (size <= 0 || size > 100) {
+            return ResponseEntity.badRequest().body("Size must be between 1 and 100");
+        }
+        
+        PageResponse<ProductResponse> response = listProductsUseCase.execute(page, size);
+        logger.info("Found {} products (page {} of {})", 
+                response.content().size(), page, response.totalPages());
         return ResponseEntity.ok(response);
     }
 

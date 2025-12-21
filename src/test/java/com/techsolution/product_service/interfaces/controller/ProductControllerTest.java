@@ -6,6 +6,7 @@ import com.techsolution.product_service.application.usecase.GetProductByIdUseCas
 import com.techsolution.product_service.application.usecase.ListProductsUseCase;
 import com.techsolution.product_service.application.usecase.UpdateProductUseCase;
 import com.techsolution.product_service.interfaces.dto.CreateProductRequest;
+import com.techsolution.product_service.interfaces.dto.PageResponse;
 import com.techsolution.product_service.interfaces.dto.ProductResponse;
 import com.techsolution.product_service.interfaces.dto.UpdateProductRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -111,13 +112,16 @@ class ProductControllerTest {
     @Test
     void shouldListProducts() {
         List<ProductResponse> products = Arrays.asList(productResponse);
-        when(listProductsUseCase.execute()).thenReturn(products);
+        PageResponse<ProductResponse> pageResponse = PageResponse.of(products, 0, 20, 1);
+        when(listProductsUseCase.execute(0, 20)).thenReturn(pageResponse);
 
-        ResponseEntity<List<ProductResponse>> response = productController.list();
+        ResponseEntity<?> response = productController.list(0, 20);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isEqualTo(products);
-        verify(listProductsUseCase).execute();
+        assertThat(response.getBody()).isInstanceOf(PageResponse.class);
+        PageResponse<ProductResponse> body = (PageResponse<ProductResponse>) response.getBody();
+        assertThat(body.content()).isEqualTo(products);
+        verify(listProductsUseCase).execute(0, 20);
     }
 
     @Test
@@ -131,6 +135,9 @@ class ProductControllerTest {
         verify(deleteProductUseCase).execute(productId);
     }
 }
+
+
+
 
 
 

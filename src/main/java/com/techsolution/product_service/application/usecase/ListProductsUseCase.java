@@ -2,6 +2,7 @@ package com.techsolution.product_service.application.usecase;
 
 import com.techsolution.product_service.domain.Product;
 import com.techsolution.product_service.domain.ProductRepository;
+import com.techsolution.product_service.interfaces.dto.PageResponse;
 import com.techsolution.product_service.interfaces.dto.ProductResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,21 @@ public class ListProductsUseCase {
         return products.stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    public PageResponse<ProductResponse> execute(int page, int size) {
+        logger.debug("Executing ListProductsUseCase with pagination - page: {}, size: {}", page, size);
+        
+        ProductRepository.PageResult<Product> pageResult = productRepository.findAll(page, size);
+        
+        List<ProductResponse> content = pageResult.content().stream()
+                .map(this::toResponse)
+                .toList();
+        
+        logger.debug("Found {} products (page {} of {})", 
+                content.size(), page, pageResult.totalPages());
+
+        return PageResponse.of(content, page, size, pageResult.totalElements());
     }
 
     private ProductResponse toResponse(Product product) {
