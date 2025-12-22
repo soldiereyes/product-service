@@ -7,6 +7,7 @@ import com.techsolution.product_service.interfaces.dto.CreateProductRequest;
 import com.techsolution.product_service.interfaces.dto.ProductResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ public class CreateProductUseCase {
     }
 
     @Transactional
+    @CacheEvict(value = "productsPage", allEntries = true)
     public ProductResponse execute(CreateProductRequest request) {
         logger.debug("Executing CreateProductUseCase for product: {}", request.name());
         
@@ -34,7 +36,7 @@ public class CreateProductUseCase {
         );
 
         Product savedProduct = productRepository.save(product);
-        logger.debug("Product saved with id: {}", savedProduct.getId());
+        logger.debug("Product saved with id: {} - invalidating productsPage cache", savedProduct.getId());
 
         return productMapper.toResponse(savedProduct);
     }

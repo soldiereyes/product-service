@@ -7,6 +7,7 @@ import com.techsolution.product_service.interfaces.dto.PageResponse;
 import com.techsolution.product_service.interfaces.dto.ProductResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,14 +33,15 @@ public class ListProductsUseCase {
         return productMapper.toResponseList(products);
     }
 
+    @Cacheable(value = "productsPage", key = "'page:' + #page + ':size:' + #size", unless = "#result == null")
     public PageResponse<ProductResponse> execute(int page, int size) {
-        logger.debug("Executing ListProductsUseCase with pagination - page: {}, size: {}", page, size);
+        logger.debug("Executing ListProductsUseCase with pagination - page: {}, size: {} (cache miss)", page, size);
         
         ProductRepository.PageResult<Product> pageResult = productRepository.findAll(page, size);
         
         List<ProductResponse> content = productMapper.toResponseList(pageResult.content());
         
-        logger.debug("Found {} products (page {} of {})", 
+        logger.debug("Found {} products (page {} of {}) - caching result", 
                 content.size(), page, pageResult.totalPages());
 
         return PageResponse.of(content, page, size, pageResult.totalElements());

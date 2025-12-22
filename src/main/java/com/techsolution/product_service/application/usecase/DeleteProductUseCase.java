@@ -4,6 +4,7 @@ import com.techsolution.product_service.domain.ProductRepository;
 import com.techsolution.product_service.domain.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ public class DeleteProductUseCase {
     }
 
     @Transactional
+    @CacheEvict(value = {"product", "productsPage"}, key = "#id.toString()", allEntries = true)
     public void execute(UUID id) {
         logger.debug("Executing DeleteProductUseCase (deactivate) for product id: {}", id);
         

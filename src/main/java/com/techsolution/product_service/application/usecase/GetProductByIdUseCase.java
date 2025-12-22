@@ -7,6 +7,7 @@ import com.techsolution.product_service.domain.exception.ResourceNotFoundExcepti
 import com.techsolution.product_service.interfaces.dto.ProductResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -23,8 +24,9 @@ public class GetProductByIdUseCase {
         this.productMapper = productMapper;
     }
 
+    @Cacheable(value = "product", key = "#id.toString()", unless = "#result == null")
     public ProductResponse execute(UUID id) {
-        logger.debug("Executing GetProductByIdUseCase for product id: {}", id);
+        logger.debug("Executing GetProductByIdUseCase for product id: {} (cache miss)", id);
         
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", id));
