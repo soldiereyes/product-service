@@ -7,6 +7,7 @@ import com.techsolution.product_service.interfaces.dto.ProductResponse;
 import com.techsolution.product_service.interfaces.dto.UpdateProductRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ public class UpdateProductUseCase {
     }
 
     @Transactional
+    @CacheEvict(value = {"product", "productsPage"}, key = "#id.toString()", allEntries = true)
     public ProductResponse execute(UUID id, UpdateProductRequest request) {
         logger.debug("Executing UpdateProductUseCase for product id: {}", id);
         
@@ -37,7 +39,7 @@ public class UpdateProductUseCase {
         );
 
         Product updatedProduct = productRepository.save(product);
-        logger.debug("Product updated successfully with id: {}", id);
+        logger.debug("Product updated successfully with id: {} - cache invalidated and updated", id);
 
         return toResponse(updatedProduct);
     }
