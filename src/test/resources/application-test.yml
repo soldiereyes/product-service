@@ -10,6 +10,12 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
   flyway:
     enabled: false
+  cache:
+    type: none
+  data:
+    redis:
+      repositories:
+        enabled: false
 
 
 

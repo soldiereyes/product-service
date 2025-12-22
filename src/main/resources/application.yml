@@ -16,6 +16,23 @@ spring:
     enabled: true
     baseline-on-migrate: true
     locations: classpath:db/migration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+cache:
+  redis:
+    time-to-live: 300000
+    cache-null-values: false
+    use-key-prefix: true
+    key-prefix: "product-service:"
 logging:
   level:
     root: ${LOG_LEVEL:INFO}
