@@ -27,12 +27,13 @@ spring:
           max-active: 8
           max-idle: 8
           min-idle: 0
-cache:
-  redis:
-    time-to-live: 300000
-    cache-null-values: false
-    use-key-prefix: true
-    key-prefix: "product-service:"
+  cache:
+    type: redis
+    redis:
+      time-to-live: 300000
+      cache-null-values: false
+      use-key-prefix: true
+      key-prefix: "product-service:"
 logging:
   level:
     root: ${LOG_LEVEL:INFO}
