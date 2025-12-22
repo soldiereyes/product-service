@@ -291,16 +291,6 @@ while (hasMore) {
 }
 ```
 
-### Documentação Completa
-
-Para exemplos detalhados de implementação em Java (Spring Boot/Feign) e TypeScript (Angular), consulte o arquivo **`PAGINATION_GUIDE.md`**.
-
-## Próximos Passos
-
-Este serviço está preparado para ser consumido pelo **stock-query-service**, que consultará informações de produtos e estoque através das APIs REST expostas.
-
-**Importante:** O stock-query-service e o frontend precisam ser atualizados para trabalhar com paginação. Consulte `PAGINATION_GUIDE.md` para detalhes de implementação.
-
 
 
 
