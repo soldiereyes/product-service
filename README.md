@@ -7,6 +7,7 @@ Serviço de gerenciamento de produtos desenvolvido com Spring Boot 4, seguindo p
 - **Java 21**
 - **Spring Boot 4.0.1**
 - **PostgreSQL**
+- **Redis** (cache distribuído)
 - **Flyway** (migrações de banco de dados)
 - **Docker & Docker Compose**
 
@@ -133,6 +134,7 @@ docker-compose up -d
 
 Isso irá:
 - Subir um container PostgreSQL
+- Subir um container Redis
 - Subir o serviço product-service
 - Executar as migrações do Flyway automaticamente
 
@@ -227,6 +229,44 @@ Todos os erros retornam um formato consistente:
 }
 ```
 
+## Cache com Redis
+
+O serviço implementa **cache distribuído com Redis** para melhorar a performance e reduzir a carga no banco de dados.
+
+### Estratégias de Cache
+
+1. **Cache por ID de Produto**
+   - Chave: `product:{id}`
+   - TTL: 5 minutos
+   - Aplicado em: `GET /products/{id}`
+
+2. **Cache Paginado**
+   - Chave: `productsPage:page:{page}:size:{size}`
+   - TTL: 3 minutos
+   - Aplicado em: `GET /products?page=X&size=Y`
+
+3. **Invalidação Automática**
+   - CREATE: invalida cache de listagem
+   - UPDATE: invalida cache do produto e listagem
+   - DELETE: invalida cache do produto e listagem
+
+### Configuração Redis
+
+**Variáveis de Ambiente:**
+- `REDIS_HOST` (padrão: `localhost`)
+- `REDIS_PORT` (padrão: `6379`)
+- `REDIS_PASSWORD` (opcional)
+
+**Docker Compose:**
+O Redis é iniciado automaticamente junto com o serviço via `docker-compose.yml`.
+
+### Benefícios
+
+- ⚡ **Performance**: Respostas até 10x mais rápidas em cache hits
+- 📉 **Redução de Carga**: Menos queries no PostgreSQL
+- 🔄 **Transparência**: Cache é transparente para consumidores da API
+- 📈 **Escalabilidade**: Redis suporta alta concorrência
+
 ## Logs
 
 O serviço utiliza SLF4J para logging estruturado:
@@ -234,6 +274,7 @@ O serviço utiliza SLF4J para logging estruturado:
 - Erros são logados com contexto da requisição
 - Stack traces nunca são expostos ao cliente
 - Níveis de log configuráveis via variáveis de ambiente
+- Logs de cache (cache hit/miss) em nível DEBUG
 
 ## Migrações de Banco de Dados
 
