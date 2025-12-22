@@ -15,16 +15,35 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    container_name: product-service-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   product-service:
     build: .
     container_name: product-service
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-product_db}
       DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
       DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
       SERVER_PORT: ${SERVER_PORT:-8081}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
     ports:
@@ -37,6 +56,7 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
 
 
 
