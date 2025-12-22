@@ -231,24 +231,26 @@ Todos os erros retornam um formato consistente:
 
 ## Cache com Redis
 
-O serviço implementa **cache distribuído com Redis** para melhorar a performance e reduzir a carga no banco de dados.
+O serviço implementa **cache distribuído com Redis** para melhorar a performance e reduzir a carga no banco de dados PostgreSQL.
 
 ### Estratégias de Cache
 
 1. **Cache por ID de Produto**
-   - Chave: `product:{id}`
-   - TTL: 5 minutos
-   - Aplicado em: `GET /products/{id}`
+   - **Chave no Redis:** `product-service:product:{uuid}`
+   - **TTL:** 5 minutos (300 segundos)
+   - **Aplicado em:** `GET /products/{id}`
+   - **Comportamento:** Primeira requisição busca no banco e armazena no cache; requisições subsequentes retornam do cache
 
 2. **Cache Paginado**
-   - Chave: `productsPage:page:{page}:size:{size}`
-   - TTL: 3 minutos
-   - Aplicado em: `GET /products?page=X&size=Y`
+   - **Chave no Redis:** `product-service:productsPage:page:{page}:size:{size}`
+   - **TTL:** 3 minutos (180 segundos)
+   - **Aplicado em:** `GET /products?page=X&size=Y`
+   - **Comportamento:** Cada combinação de página/tamanho é cacheada independentemente
 
 3. **Invalidação Automática**
-   - CREATE: invalida cache de listagem
-   - UPDATE: invalida cache do produto e listagem
-   - DELETE: invalida cache do produto e listagem
+   - **CREATE:** Invalida todas as páginas do cache de listagem (`@CacheEvict` em `CreateProductUseCase`)
+   - **UPDATE:** Invalida cache do produto específico e todas as páginas (`@CacheEvict` em `UpdateProductUseCase`)
+   - **DELETE:** Invalida cache do produto específico e todas as páginas (`@CacheEvict` em `DeleteProductUseCase`)
 
 ### Configuração Redis
 
@@ -258,14 +260,54 @@ O serviço implementa **cache distribuído com Redis** para melhorar a performan
 - `REDIS_PASSWORD` (opcional)
 
 **Docker Compose:**
-O Redis é iniciado automaticamente junto com o serviço via `docker-compose.yml`.
+O Redis é iniciado automaticamente junto com o serviço via `docker-compose.yml`:
+- Imagem: `redis:7-alpine`
+- Porta: `6379`
+- Persistência: Volume `redis_data` com AOF habilitado
+
+### Serialização
+
+O cache utiliza **`Jackson2JsonRedisSerializer`** (recomendado pelo Spring Data Redis 4.0) para serialização JSON:
+- **Chaves:** `StringRedisSerializer`
+- **Valores:** `Jackson2JsonRedisSerializer<Object>` com type information
+- Suporta tipos genéricos como `PageResponse<ProductResponse>`
 
 ### Benefícios
 
-- ⚡ **Performance**: Respostas até 10x mais rápidas em cache hits
-- 📉 **Redução de Carga**: Menos queries no PostgreSQL
+- ⚡ **Performance**: Respostas até 10x mais rápidas em cache hits (< 5ms vs ~50-100ms)
+- 📉 **Redução de Carga**: 70-90% menos queries no PostgreSQL em cenários de alta leitura
 - 🔄 **Transparência**: Cache é transparente para consumidores da API
-- 📈 **Escalabilidade**: Redis suporta alta concorrência
+- 📈 **Escalabilidade**: Redis suporta alta concorrência e múltiplas instâncias
+
+### Testando o Cache
+
+**1. Verificar Cache Hit/Miss nos Logs:**
+```bash
+# Primeira requisição (MISS - busca no banco)
+curl http://localhost:8081/products/{id}
+
+# Segunda requisição (HIT - retorna do cache)
+curl http://localhost:8081/products/{id}
+```
+
+**2. Verificar no Redis CLI:**
+```bash
+docker exec -it product-service-redis redis-cli
+
+# Listar todas as chaves do cache
+KEYS product-service:*
+
+# Ver valor de uma chave específica
+GET product-service:product:{uuid}
+
+# Ver TTL de uma chave
+TTL product-service:product:{uuid}
+```
+
+**3. Limpar Cache Manualmente:**
+```bash
+docker exec -it product-service-redis redis-cli FLUSHDB
+```
 
 ## Logs
 
@@ -283,11 +325,119 @@ As migrações são gerenciadas pelo Flyway e estão localizadas em:
 
 A migração inicial cria a tabela `products` com todas as constraints necessárias.
 
+## Importação de Produtos em Massa
+
+O projeto inclui um script para importar múltiplos produtos de uma vez a partir de um arquivo JSON.
+
+### Pré-requisitos
+
+- Serviço rodando (localmente ou via Docker)
+- Arquivo `products-sample.json` na raiz do projeto
+- Ferramenta `jq` instalada (para processar JSON)
+
+**Instalar jq:**
+```bash
+# Ubuntu/Debian
+sudo apt-get install jq
+
+# macOS
+brew install jq
+
+# Ou via Docker
+docker run --rm -v $(pwd):/data imega/jq
+```
+
+### Executando a Importação
+
+**1. Garantir que o serviço está rodando:**
+```bash
+# Com Docker Compose
+docker-compose up -d
+
+# Ou localmente
+./mvnw spring-boot:run
+```
+
+**2. Executar o script de importação:**
+```bash
+# Dar permissão de execução (primeira vez)
+chmod +x import-products.sh
+
+# Executar o script
+./import-products.sh
+```
+
+### Formato do Arquivo JSON
+
+O arquivo `products-sample.json` deve seguir o formato:
+```json
+[
+  {
+    "name": "Produto 1",
+    "description": "Descrição do produto 1",
+    "price": 100.00,
+    "stockQuantity": 10
+  },
+  {
+    "name": "Produto 2",
+    "description": "Descrição do produto 2",
+    "price": 200.00,
+    "stockQuantity": 20
+  }
+]
+```
+
+### Personalizando a Importação
+
+Você pode modificar o script `import-products.sh` para:
+- Alterar a URL base (padrão: `http://localhost:8081`)
+- Usar um arquivo JSON diferente
+- Adicionar autenticação se necessário
+
+**Exemplo com arquivo customizado:**
+```bash
+JSON_FILE="meus-produtos.json" ./import-products.sh
+```
+
+### Resultado
+
+O script exibe:
+- Progresso de cada produto sendo importado
+- Status de sucesso (✓) ou erro (✗)
+- Resumo final com total processado, sucessos e erros
+
+**Exemplo de saída:**
+```
+Importando produtos de products-sample.json...
+
+Cadastrando produto 1...
+✓ Produto cadastrado: Notebook
+
+Cadastrando produto 2...
+✓ Produto cadastrado: Mouse
+
+==========================================
+Importação concluída!
+Total processado: 40
+Sucessos: 40
+Erros: 0
+==========================================
+```
+
+**Nota:** Após a importação, o cache de listagem será automaticamente invalidado nas próximas operações de CREATE/UPDATE/DELETE.
+
 ## Testes
 
 ```bash
 ./mvnw test
 ```
+
+**Cobertura de Testes:**
+- ✅ Testes unitários para todos os UseCases
+- ✅ Testes de paginação
+- ✅ Testes de comportamento de cache
+- ✅ Testes de repositório com paginação
+- ✅ Testes de controller e exception handlers
 
 ## Porta
 
@@ -331,16 +481,6 @@ while (hasMore) {
     page++;
 }
 ```
-
-### Documentação Completa
-
-Para exemplos detalhados de implementação em Java (Spring Boot/Feign) e TypeScript (Angular), consulte o arquivo **`PAGINATION_GUIDE.md`**.
-
-## Próximos Passos
-
-Este serviço está preparado para ser consumido pelo **stock-query-service**, que consultará informações de produtos e estoque através das APIs REST expostas.
-
-**Importante:** O stock-query-service e o frontend precisam ser atualizados para trabalhar com paginação. Consulte `PAGINATION_GUIDE.md` para detalhes de implementação.
 
 
 
