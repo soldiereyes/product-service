@@ -1,5 +1,6 @@
 package com.techsolution.product_service.application.usecase;
 
+import com.techsolution.product_service.application.mapper.ProductMapper;
 import com.techsolution.product_service.domain.Product;
 import com.techsolution.product_service.domain.ProductRepository;
 import com.techsolution.product_service.domain.exception.ResourceNotFoundException;
@@ -26,6 +27,9 @@ class GetProductByIdUseCaseTest {
     @Mock
     private ProductRepository productRepository;
 
+    @Mock
+    private ProductMapper productMapper;
+
     @InjectMocks
     private GetProductByIdUseCase getProductByIdUseCase;
 
@@ -46,7 +50,16 @@ class GetProductByIdUseCaseTest {
 
     @Test
     void shouldGetProductByIdSuccessfully() {
+        ProductResponse expectedResponse = new ProductResponse(
+                productId,
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getStockQuantity()
+        );
+
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(productMapper.toResponse(product)).thenReturn(expectedResponse);
 
         ProductResponse response = getProductByIdUseCase.execute(productId);
 
@@ -58,6 +71,7 @@ class GetProductByIdUseCaseTest {
         assertThat(response.stockQuantity()).isEqualTo(product.getStockQuantity());
 
         verify(productRepository).findById(productId);
+        verify(productMapper).toResponse(product);
     }
 
     @Test
@@ -72,6 +86,7 @@ class GetProductByIdUseCaseTest {
         verify(productRepository).findById(productId);
     }
 }
+
 
 
 

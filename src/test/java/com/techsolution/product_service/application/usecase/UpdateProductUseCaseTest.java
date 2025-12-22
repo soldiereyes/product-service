@@ -1,5 +1,6 @@
 package com.techsolution.product_service.application.usecase;
 
+import com.techsolution.product_service.application.mapper.ProductMapper;
 import com.techsolution.product_service.domain.Product;
 import com.techsolution.product_service.domain.ProductRepository;
 import com.techsolution.product_service.domain.exception.ResourceNotFoundException;
@@ -27,6 +28,9 @@ class UpdateProductUseCaseTest {
 
     @Mock
     private ProductRepository productRepository;
+
+    @Mock
+    private ProductMapper productMapper;
 
     @InjectMocks
     private UpdateProductUseCase updateProductUseCase;
@@ -56,8 +60,24 @@ class UpdateProductUseCaseTest {
 
     @Test
     void shouldUpdateProductSuccessfully() {
+        Product updatedProduct = new Product(
+                productId,
+                request.name(),
+                request.description(),
+                request.price(),
+                request.stockQuantity()
+        );
+        ProductResponse expectedResponse = new ProductResponse(
+                productId,
+                request.name(),
+                request.description(),
+                request.price(),
+                request.stockQuantity()
+        );
+
         when(productRepository.findById(productId)).thenReturn(Optional.of(existingProduct));
         when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(productMapper.toResponse(any(Product.class))).thenReturn(expectedResponse);
 
         ProductResponse response = updateProductUseCase.execute(productId, request);
 
@@ -70,6 +90,7 @@ class UpdateProductUseCaseTest {
 
         verify(productRepository).findById(productId);
         verify(productRepository).save(any(Product.class));
+        verify(productMapper).toResponse(any(Product.class));
     }
 
     @Test
@@ -85,6 +106,7 @@ class UpdateProductUseCaseTest {
         verify(productRepository, org.mockito.Mockito.never()).save(any(Product.class));
     }
 }
+
 
 
 

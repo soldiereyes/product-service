@@ -5,6 +5,7 @@ import com.techsolution.product_service.application.usecase.DeleteProductUseCase
 import com.techsolution.product_service.application.usecase.GetProductByIdUseCase;
 import com.techsolution.product_service.application.usecase.ListProductsUseCase;
 import com.techsolution.product_service.application.usecase.UpdateProductUseCase;
+import com.techsolution.product_service.interfaces.controller.PaginationValidator;
 import com.techsolution.product_service.interfaces.dto.CreateProductRequest;
 import com.techsolution.product_service.interfaces.dto.PageResponse;
 import com.techsolution.product_service.interfaces.dto.ProductResponse;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,6 +45,9 @@ class ProductControllerTest {
 
     @Mock
     private DeleteProductUseCase deleteProductUseCase;
+
+    @Mock
+    private PaginationValidator paginationValidator;
 
     @InjectMocks
     private ProductController productController;
@@ -113,6 +118,7 @@ class ProductControllerTest {
     void shouldListProducts() {
         List<ProductResponse> products = Arrays.asList(productResponse);
         PageResponse<ProductResponse> pageResponse = PageResponse.of(products, 0, 20, 1);
+        when(paginationValidator.validate(0, 20)).thenReturn(null);
         when(listProductsUseCase.execute(0, 20)).thenReturn(pageResponse);
 
         ResponseEntity<?> response = productController.list(0, 20);
@@ -121,7 +127,21 @@ class ProductControllerTest {
         assertThat(response.getBody()).isInstanceOf(PageResponse.class);
         PageResponse<ProductResponse> body = (PageResponse<ProductResponse>) response.getBody();
         assertThat(body.content()).isEqualTo(products);
+        verify(paginationValidator).validate(0, 20);
         verify(listProductsUseCase).execute(0, 20);
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenPaginationIsInvalid() {
+        String errorMessage = "Page must be greater than or equal to 0";
+        when(paginationValidator.validate(-1, 20)).thenReturn(errorMessage);
+
+        ResponseEntity<?> response = productController.list(-1, 20);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isEqualTo(errorMessage);
+        verify(paginationValidator).validate(-1, 20);
+        verify(listProductsUseCase, org.mockito.Mockito.never()).execute(anyInt(), anyInt());
     }
 
     @Test

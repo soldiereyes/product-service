@@ -1,5 +1,6 @@
 package com.techsolution.product_service.application.usecase;
 
+import com.techsolution.product_service.application.mapper.ProductMapper;
 import com.techsolution.product_service.domain.Product;
 import com.techsolution.product_service.domain.ProductRepository;
 import com.techsolution.product_service.interfaces.dto.CreateProductRequest;
@@ -24,6 +25,9 @@ class CreateProductUseCaseTest {
 
     @Mock
     private ProductRepository productRepository;
+
+    @Mock
+    private ProductMapper productMapper;
 
     @InjectMocks
     private CreateProductUseCase createProductUseCase;
@@ -52,7 +56,16 @@ class CreateProductUseCaseTest {
 
     @Test
     void shouldCreateProductSuccessfully() {
+        ProductResponse expectedResponse = new ProductResponse(
+                savedProduct.getId(),
+                savedProduct.getName(),
+                savedProduct.getDescription(),
+                savedProduct.getPrice(),
+                savedProduct.getStockQuantity()
+        );
+
         when(productRepository.save(any(Product.class))).thenReturn(savedProduct);
+        when(productMapper.toResponse(savedProduct)).thenReturn(expectedResponse);
 
         ProductResponse response = createProductUseCase.execute(request);
 
@@ -64,6 +77,7 @@ class CreateProductUseCaseTest {
         assertThat(response.stockQuantity()).isEqualTo(request.stockQuantity());
 
         verify(productRepository).save(any(Product.class));
+        verify(productMapper).toResponse(savedProduct);
     }
 
     @Test
@@ -84,14 +98,25 @@ class CreateProductUseCaseTest {
                 zeroStockRequest.stockQuantity()
         );
 
+        ProductResponse expectedResponse = new ProductResponse(
+                productId,
+                zeroStockRequest.name(),
+                zeroStockRequest.description(),
+                zeroStockRequest.price(),
+                zeroStockRequest.stockQuantity()
+        );
+
         when(productRepository.save(any(Product.class))).thenReturn(productWithZeroStock);
+        when(productMapper.toResponse(productWithZeroStock)).thenReturn(expectedResponse);
 
         ProductResponse response = createProductUseCase.execute(zeroStockRequest);
 
         assertThat(response.stockQuantity()).isZero();
         verify(productRepository).save(any(Product.class));
+        verify(productMapper).toResponse(productWithZeroStock);
     }
 }
+
 
 
 

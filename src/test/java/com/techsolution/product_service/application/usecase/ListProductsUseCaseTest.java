@@ -1,7 +1,9 @@
 package com.techsolution.product_service.application.usecase;
 
+import com.techsolution.product_service.application.mapper.ProductMapper;
 import com.techsolution.product_service.domain.Product;
 import com.techsolution.product_service.domain.ProductRepository;
+import com.techsolution.product_service.interfaces.dto.PageResponse;
 import com.techsolution.product_service.interfaces.dto.ProductResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,9 @@ class ListProductsUseCaseTest {
 
     @Mock
     private ProductRepository productRepository;
+
+    @Mock
+    private ProductMapper productMapper;
 
     @InjectMocks
     private ListProductsUseCase listProductsUseCase;
@@ -53,7 +58,17 @@ class ListProductsUseCaseTest {
 
     @Test
     void shouldListAllProductsSuccessfully() {
+        List<ProductResponse> expectedResponses = Arrays.asList(
+                new ProductResponse(products.get(0).getId(), products.get(0).getName(), 
+                        products.get(0).getDescription(), products.get(0).getPrice(), 
+                        products.get(0).getStockQuantity()),
+                new ProductResponse(products.get(1).getId(), products.get(1).getName(), 
+                        products.get(1).getDescription(), products.get(1).getPrice(), 
+                        products.get(1).getStockQuantity())
+        );
+
         when(productRepository.findAll()).thenReturn(products);
+        when(productMapper.toResponseList(products)).thenReturn(expectedResponses);
 
         List<ProductResponse> response = listProductsUseCase.execute();
 
@@ -63,11 +78,13 @@ class ListProductsUseCaseTest {
         assertThat(response.get(1).name()).isEqualTo(products.get(1).getName());
 
         verify(productRepository).findAll();
+        verify(productMapper).toResponseList(products);
     }
 
     @Test
     void shouldReturnEmptyListWhenNoProducts() {
         when(productRepository.findAll()).thenReturn(List.of());
+        when(productMapper.toResponseList(List.of())).thenReturn(List.of());
 
         List<ProductResponse> response = listProductsUseCase.execute();
 
@@ -75,6 +92,37 @@ class ListProductsUseCaseTest {
         assertThat(response).isEmpty();
 
         verify(productRepository).findAll();
+        verify(productMapper).toResponseList(List.of());
+    }
+
+    @Test
+    void shouldListProductsWithPagination() {
+        int page = 0;
+        int size = 20;
+        ProductRepository.PageResult<Product> pageResult = new ProductRepository.PageResult<>(
+                products, 2L, 1
+        );
+        List<ProductResponse> expectedResponses = Arrays.asList(
+                new ProductResponse(products.get(0).getId(), products.get(0).getName(), 
+                        products.get(0).getDescription(), products.get(0).getPrice(), 
+                        products.get(0).getStockQuantity()),
+                new ProductResponse(products.get(1).getId(), products.get(1).getName(), 
+                        products.get(1).getDescription(), products.get(1).getPrice(), 
+                        products.get(1).getStockQuantity())
+        );
+
+        when(productRepository.findAll(page, size)).thenReturn(pageResult);
+        when(productMapper.toResponseList(products)).thenReturn(expectedResponses);
+
+        PageResponse<ProductResponse> response = listProductsUseCase.execute(page, size);
+
+        assertThat(response).isNotNull();
+        assertThat(response.content()).hasSize(2);
+        assertThat(response.totalElements()).isEqualTo(2L);
+        assertThat(response.totalPages()).isEqualTo(1);
+
+        verify(productRepository).findAll(page, size);
+        verify(productMapper).toResponseList(products);
     }
 }
 
