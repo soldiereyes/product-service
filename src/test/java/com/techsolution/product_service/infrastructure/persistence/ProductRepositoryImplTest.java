@@ -41,14 +41,16 @@ class ProductRepositoryImplTest {
                 "Notebook",
                 "Notebook Dell Inspiron 15",
                 new BigDecimal("3500.00"),
-                10
+                10,
+                true
         );
         productEntity = new ProductEntity(
                 productId,
                 "Notebook",
                 "Notebook Dell Inspiron 15",
                 new BigDecimal("3500.00"),
-                10
+                10,
+                true
         );
     }
 
@@ -69,63 +71,84 @@ class ProductRepositoryImplTest {
     }
 
     @Test
-    void shouldFindProductById() {
-        when(jpaProductRepository.findById(productId)).thenReturn(Optional.of(productEntity));
+    void shouldFindActiveProductById() {
+        when(jpaProductRepository.findByIdAndActive(productId)).thenReturn(Optional.of(productEntity));
 
         Optional<Product> result = productRepositoryImpl.findById(productId);
 
         assertThat(result).isPresent();
         assertThat(result.get().getId()).isEqualTo(productId);
-        verify(jpaProductRepository).findById(productId);
+        verify(jpaProductRepository).findByIdAndActive(productId);
     }
 
     @Test
-    void shouldReturnEmptyWhenProductNotFound() {
-        when(jpaProductRepository.findById(productId)).thenReturn(Optional.empty());
+    void shouldReturnEmptyWhenActiveProductNotFound() {
+        when(jpaProductRepository.findByIdAndActive(productId)).thenReturn(Optional.empty());
 
         Optional<Product> result = productRepositoryImpl.findById(productId);
 
         assertThat(result).isEmpty();
-        verify(jpaProductRepository).findById(productId);
+        verify(jpaProductRepository).findByIdAndActive(productId);
     }
 
     @Test
-    void shouldFindAllProducts() {
+    void shouldFindAllActiveProducts() {
         ProductEntity entity2 = new ProductEntity(
                 UUID.randomUUID(),
                 "Mouse",
                 "Mouse Logitech",
                 new BigDecimal("50.00"),
-                20
+                20,
+                true
         );
         List<ProductEntity> entities = Arrays.asList(productEntity, entity2);
-        when(jpaProductRepository.findAll()).thenReturn(entities);
+        when(jpaProductRepository.findAllActive()).thenReturn(entities);
 
         List<Product> products = productRepositoryImpl.findAll();
 
         assertThat(products).hasSize(2);
         assertThat(products.get(0).getId()).isEqualTo(productId);
         assertThat(products.get(1).getName()).isEqualTo("Mouse");
-        verify(jpaProductRepository).findAll();
+        verify(jpaProductRepository).findAllActive();
     }
 
     @Test
-    void shouldReturnEmptyListWhenNoProducts() {
-        when(jpaProductRepository.findAll()).thenReturn(List.of());
+    void shouldReturnEmptyListWhenNoActiveProducts() {
+        when(jpaProductRepository.findAllActive()).thenReturn(List.of());
 
         List<Product> products = productRepositoryImpl.findAll();
 
         assertThat(products).isEmpty();
-        verify(jpaProductRepository).findAll();
+        verify(jpaProductRepository).findAllActive();
     }
 
     @Test
-    void shouldDeleteProductById() {
-        doNothing().when(jpaProductRepository).deleteById(productId);
+    void shouldDeactivateProductById() {
+        doNothing().when(jpaProductRepository).deactivateById(productId);
 
-        productRepositoryImpl.deleteById(productId);
+        productRepositoryImpl.deactivateById(productId);
 
-        verify(jpaProductRepository).deleteById(productId);
+        verify(jpaProductRepository).deactivateById(productId);
+    }
+
+    @Test
+    void shouldCheckIfActiveProductExists() {
+        when(jpaProductRepository.existsByIdAndActive(productId)).thenReturn(true);
+
+        boolean exists = productRepositoryImpl.existsByIdAndActive(productId);
+
+        assertThat(exists).isTrue();
+        verify(jpaProductRepository).existsByIdAndActive(productId);
+    }
+
+    @Test
+    void shouldCheckIfActiveProductDoesNotExist() {
+        when(jpaProductRepository.existsByIdAndActive(productId)).thenReturn(false);
+
+        boolean exists = productRepositoryImpl.existsByIdAndActive(productId);
+
+        assertThat(exists).isFalse();
+        verify(jpaProductRepository).existsByIdAndActive(productId);
     }
 
     @Test

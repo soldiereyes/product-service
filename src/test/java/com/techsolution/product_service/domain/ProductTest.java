@@ -13,13 +13,14 @@ class ProductTest {
     @Test
     void shouldCreateProductWithAllFields() {
         UUID id = UUID.randomUUID();
-        Product product = new Product(id, "Notebook", "Description", new BigDecimal("1000.00"), 10);
+        Product product = new Product(id, "Notebook", "Description", new BigDecimal("1000.00"), 10, true);
 
         assertThat(product.getId()).isEqualTo(id);
         assertThat(product.getName()).isEqualTo("Notebook");
         assertThat(product.getDescription()).isEqualTo("Description");
         assertThat(product.getPrice()).isEqualTo(new BigDecimal("1000.00"));
         assertThat(product.getStockQuantity()).isEqualTo(10);
+        assertThat(product.getActive()).isTrue();
     }
 
     @Test
@@ -28,6 +29,7 @@ class ProductTest {
 
         assertThat(product.getId()).isNotNull();
         assertThat(product.getName()).isEqualTo("Notebook");
+        assertThat(product.getActive()).isTrue();
     }
 
     @Test
@@ -135,6 +137,44 @@ class ProductTest {
         product.setId(newId);
 
         assertThat(product.getId()).isEqualTo(newId);
+    }
+
+    @Test
+    void shouldDefaultToActiveWhenCreatingProduct() {
+        Product product = new Product("Name", "Description", new BigDecimal("100.00"), 5);
+
+        assertThat(product.getActive()).isTrue();
+        assertThat(product.isActive()).isTrue();
+    }
+
+    @Test
+    void shouldDeactivateProduct() {
+        Product product = new Product("Name", "Description", new BigDecimal("100.00"), 5);
+        assertThat(product.isActive()).isTrue();
+
+        product.deactivate();
+
+        assertThat(product.getActive()).isFalse();
+        assertThat(product.isActive()).isFalse();
+    }
+
+    @Test
+    void shouldSetActiveStatus() {
+        Product product = new Product("Name", "Description", new BigDecimal("100.00"), 5);
+
+        product.setActive(false);
+        assertThat(product.getActive()).isFalse();
+
+        product.setActive(true);
+        assertThat(product.getActive()).isTrue();
+    }
+
+    @Test
+    void shouldDefaultToActiveWhenSettingNull() {
+        Product product = new Product("Name", "Description", new BigDecimal("100.00"), 5);
+        product.setActive(null);
+
+        assertThat(product.getActive()).isTrue();
     }
 }
 

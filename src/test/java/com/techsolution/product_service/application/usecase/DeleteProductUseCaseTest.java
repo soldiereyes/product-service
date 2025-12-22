@@ -31,27 +31,27 @@ class DeleteProductUseCaseTest {
     }
 
     @Test
-    void shouldDeleteProductSuccessfully() {
-        when(productRepository.existsById(productId)).thenReturn(true);
-        doNothing().when(productRepository).deleteById(productId);
+    void shouldDeactivateProductSuccessfully() {
+        when(productRepository.existsByIdAndActive(productId)).thenReturn(true);
+        doNothing().when(productRepository).deactivateById(productId);
 
         deleteProductUseCase.execute(productId);
 
-        verify(productRepository).existsById(productId);
-        verify(productRepository).deleteById(productId);
+        verify(productRepository).existsByIdAndActive(productId);
+        verify(productRepository).deactivateById(productId);
     }
 
     @Test
     void shouldThrowExceptionWhenProductNotFound() {
-        when(productRepository.existsById(productId)).thenReturn(false);
+        when(productRepository.existsByIdAndActive(productId)).thenReturn(false);
 
         assertThatThrownBy(() -> deleteProductUseCase.execute(productId))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Product")
                 .hasMessageContaining(productId.toString());
 
-        verify(productRepository).existsById(productId);
-        verify(productRepository, never()).deleteById(productId);
+        verify(productRepository).existsByIdAndActive(productId);
+        verify(productRepository, never()).deactivateById(productId);
     }
 }
 
