@@ -5,6 +5,7 @@ import com.techsolution.product_service.application.usecase.DeleteProductUseCase
 import com.techsolution.product_service.application.usecase.GetProductByIdUseCase;
 import com.techsolution.product_service.application.usecase.ListProductsUseCase;
 import com.techsolution.product_service.application.usecase.UpdateProductUseCase;
+import com.techsolution.product_service.interfaces.controller.PaginationValidator;
 import com.techsolution.product_service.interfaces.dto.CreateProductRequest;
 import com.techsolution.product_service.interfaces.dto.PageResponse;
 import com.techsolution.product_service.interfaces.dto.ProductResponse;
@@ -30,19 +31,22 @@ public class ProductController {
     private final GetProductByIdUseCase getProductByIdUseCase;
     private final ListProductsUseCase listProductsUseCase;
     private final DeleteProductUseCase deleteProductUseCase;
+    private final PaginationValidator paginationValidator;
 
     public ProductController(
             CreateProductUseCase createProductUseCase,
             UpdateProductUseCase updateProductUseCase,
             GetProductByIdUseCase getProductByIdUseCase,
             ListProductsUseCase listProductsUseCase,
-            DeleteProductUseCase deleteProductUseCase
+            DeleteProductUseCase deleteProductUseCase,
+            PaginationValidator paginationValidator
     ) {
         this.createProductUseCase = createProductUseCase;
         this.updateProductUseCase = updateProductUseCase;
         this.getProductByIdUseCase = getProductByIdUseCase;
         this.listProductsUseCase = listProductsUseCase;
         this.deleteProductUseCase = deleteProductUseCase;
+        this.paginationValidator = paginationValidator;
     }
 
     @PostMapping
@@ -79,12 +83,9 @@ public class ProductController {
     ) {
         logger.info("Listing products - page: {}, size: {}", page, size);
         
-        // Validação de parâmetros
-        if (page < 0) {
-            return ResponseEntity.badRequest().body("Page must be greater than or equal to 0");
-        }
-        if (size <= 0 || size > 100) {
-            return ResponseEntity.badRequest().body("Size must be between 1 and 100");
+        String validationError = paginationValidator.validate(page, size);
+        if (validationError != null) {
+            return ResponseEntity.badRequest().body(validationError);
         }
         
         PageResponse<ProductResponse> response = listProductsUseCase.execute(page, size);
@@ -101,6 +102,4 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 }
-
-
 

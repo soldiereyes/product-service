@@ -1,5 +1,6 @@
 package com.techsolution.product_service.application.usecase;
 
+import com.techsolution.product_service.application.mapper.ProductMapper;
 import com.techsolution.product_service.domain.Product;
 import com.techsolution.product_service.domain.ProductRepository;
 import com.techsolution.product_service.interfaces.dto.CreateProductRequest;
@@ -14,9 +15,11 @@ public class CreateProductUseCase {
     private static final Logger logger = LoggerFactory.getLogger(CreateProductUseCase.class);
     
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
 
-    public CreateProductUseCase(ProductRepository productRepository) {
+    public CreateProductUseCase(ProductRepository productRepository, ProductMapper productMapper) {
         this.productRepository = productRepository;
+        this.productMapper = productMapper;
     }
 
     @Transactional
@@ -33,17 +36,7 @@ public class CreateProductUseCase {
         Product savedProduct = productRepository.save(product);
         logger.debug("Product saved with id: {}", savedProduct.getId());
 
-        return toResponse(savedProduct);
-    }
-
-    private ProductResponse toResponse(Product product) {
-        return new ProductResponse(
-                product.getId(),
-                product.getName(),
-                product.getDescription(),
-                product.getPrice(),
-                product.getStockQuantity()
-        );
+        return productMapper.toResponse(savedProduct);
     }
 }
 

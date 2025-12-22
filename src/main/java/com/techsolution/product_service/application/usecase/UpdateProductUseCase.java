@@ -1,5 +1,6 @@
 package com.techsolution.product_service.application.usecase;
 
+import com.techsolution.product_service.application.mapper.ProductMapper;
 import com.techsolution.product_service.domain.Product;
 import com.techsolution.product_service.domain.ProductRepository;
 import com.techsolution.product_service.domain.exception.ResourceNotFoundException;
@@ -17,9 +18,11 @@ public class UpdateProductUseCase {
     private static final Logger logger = LoggerFactory.getLogger(UpdateProductUseCase.class);
     
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
 
-    public UpdateProductUseCase(ProductRepository productRepository) {
+    public UpdateProductUseCase(ProductRepository productRepository, ProductMapper productMapper) {
         this.productRepository = productRepository;
+        this.productMapper = productMapper;
     }
 
     @Transactional
@@ -39,17 +42,7 @@ public class UpdateProductUseCase {
         Product updatedProduct = productRepository.save(product);
         logger.debug("Product updated successfully with id: {}", id);
 
-        return toResponse(updatedProduct);
-    }
-
-    private ProductResponse toResponse(Product product) {
-        return new ProductResponse(
-                product.getId(),
-                product.getName(),
-                product.getDescription(),
-                product.getPrice(),
-                product.getStockQuantity()
-        );
+        return productMapper.toResponse(updatedProduct);
     }
 }
 

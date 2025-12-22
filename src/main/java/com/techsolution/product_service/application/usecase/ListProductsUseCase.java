@@ -1,5 +1,6 @@
 package com.techsolution.product_service.application.usecase;
 
+import com.techsolution.product_service.application.mapper.ProductMapper;
 import com.techsolution.product_service.domain.Product;
 import com.techsolution.product_service.domain.ProductRepository;
 import com.techsolution.product_service.interfaces.dto.PageResponse;
@@ -15,9 +16,11 @@ public class ListProductsUseCase {
     private static final Logger logger = LoggerFactory.getLogger(ListProductsUseCase.class);
     
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
 
-    public ListProductsUseCase(ProductRepository productRepository) {
+    public ListProductsUseCase(ProductRepository productRepository, ProductMapper productMapper) {
         this.productRepository = productRepository;
+        this.productMapper = productMapper;
     }
 
     public List<ProductResponse> execute() {
@@ -26,9 +29,7 @@ public class ListProductsUseCase {
         List<Product> products = productRepository.findAll();
         logger.debug("Found {} products", products.size());
 
-        return products.stream()
-                .map(this::toResponse)
-                .toList();
+        return productMapper.toResponseList(products);
     }
 
     public PageResponse<ProductResponse> execute(int page, int size) {
@@ -36,23 +37,11 @@ public class ListProductsUseCase {
         
         ProductRepository.PageResult<Product> pageResult = productRepository.findAll(page, size);
         
-        List<ProductResponse> content = pageResult.content().stream()
-                .map(this::toResponse)
-                .toList();
+        List<ProductResponse> content = productMapper.toResponseList(pageResult.content());
         
         logger.debug("Found {} products (page {} of {})", 
                 content.size(), page, pageResult.totalPages());
 
         return PageResponse.of(content, page, size, pageResult.totalElements());
-    }
-
-    private ProductResponse toResponse(Product product) {
-        return new ProductResponse(
-                product.getId(),
-                product.getName(),
-                product.getDescription(),
-                product.getPrice(),
-                product.getStockQuantity()
-        );
     }
 }

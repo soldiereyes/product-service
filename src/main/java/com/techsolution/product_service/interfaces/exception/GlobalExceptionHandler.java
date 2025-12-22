@@ -29,11 +29,10 @@ public class GlobalExceptionHandler {
     ) {
         logger.warn("Resource not found: {} - Path: {}", ex.getMessage(), request.getRequestURI());
         
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                "Resource Not Found",
+        ErrorResponse error = buildErrorResponse(
+                ErrorType.RESOURCE_NOT_FOUND,
                 ex.getMessage(),
+                HttpStatus.NOT_FOUND,
                 request.getRequestURI()
         );
 
@@ -47,11 +46,10 @@ public class GlobalExceptionHandler {
     ) {
         logger.warn("Business exception: {} - Path: {}", ex.getMessage(), request.getRequestURI());
         
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                "Business Error",
+        ErrorResponse error = buildErrorResponse(
+                ErrorType.BUSINESS_ERROR,
                 ex.getMessage(),
+                HttpStatus.BAD_REQUEST,
                 request.getRequestURI()
         );
 
@@ -63,21 +61,14 @@ public class GlobalExceptionHandler {
             MethodArgumentNotValidException ex,
             HttpServletRequest request
     ) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-
+        Map<String, String> errors = extractValidationErrors(ex);
         String message = "Validation failed: " + errors.toString();
         logger.warn("Validation error: {} - Path: {}", message, request.getRequestURI());
 
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                "Validation Error",
+        ErrorResponse error = buildErrorResponse(
+                ErrorType.VALIDATION_ERROR,
                 message,
+                HttpStatus.BAD_REQUEST,
                 request.getRequestURI()
         );
 
@@ -91,11 +82,10 @@ public class GlobalExceptionHandler {
     ) {
         logger.warn("Constraint violation: {} - Path: {}", ex.getMessage(), request.getRequestURI());
 
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                "Validation Error",
+        ErrorResponse error = buildErrorResponse(
+                ErrorType.VALIDATION_ERROR,
                 ex.getMessage(),
+                HttpStatus.BAD_REQUEST,
                 request.getRequestURI()
         );
 
@@ -109,11 +99,10 @@ public class GlobalExceptionHandler {
     ) {
         logger.warn("Illegal argument: {} - Path: {}", ex.getMessage(), request.getRequestURI());
 
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                "Invalid Argument",
+        ErrorResponse error = buildErrorResponse(
+                ErrorType.INVALID_ARGUMENT,
                 ex.getMessage(),
+                HttpStatus.BAD_REQUEST,
                 request.getRequestURI()
         );
 
@@ -127,17 +116,39 @@ public class GlobalExceptionHandler {
     ) {
         logger.error("Unexpected error occurred - Path: {}", request.getRequestURI(), ex);
 
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Internal Server Error",
+        ErrorResponse error = buildErrorResponse(
+                ErrorType.INTERNAL_SERVER_ERROR,
                 "An unexpected error occurred",
+                HttpStatus.INTERNAL_SERVER_ERROR,
                 request.getRequestURI()
         );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
+
+    private ErrorResponse buildErrorResponse(
+            ErrorType errorType,
+            String message,
+            HttpStatus status,
+            String path
+    ) {
+        return new ErrorResponse(
+                LocalDateTime.now(),
+                status.value(),
+                errorType.getMessage(),
+                message,
+                path
+        );
+    }
+
+    private Map<String, String> extractValidationErrors(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
+    }
 }
-
-
 

@@ -33,16 +33,16 @@ public class Product {
 
     private void validate() {
         if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Product name cannot be null or empty");
+            throw new IllegalArgumentException(ProductValidationMessages.NAME_CANNOT_BE_NULL_OR_EMPTY);
         }
         if (description == null || description.trim().isEmpty()) {
-            throw new IllegalArgumentException("Product description cannot be null or empty");
+            throw new IllegalArgumentException(ProductValidationMessages.DESCRIPTION_CANNOT_BE_NULL_OR_EMPTY);
         }
         if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Product price cannot be null or negative");
+            throw new IllegalArgumentException(ProductValidationMessages.PRICE_CANNOT_BE_NULL_OR_NEGATIVE);
         }
         if (stockQuantity == null || stockQuantity < 0) {
-            throw new IllegalArgumentException("Product stock quantity cannot be null or negative");
+            throw new IllegalArgumentException(ProductValidationMessages.STOCK_QUANTITY_CANNOT_BE_NULL_OR_NEGATIVE);
         }
     }
 
@@ -78,4 +78,3 @@ public class Product {
         return stockQuantity;
     }
 }
-
