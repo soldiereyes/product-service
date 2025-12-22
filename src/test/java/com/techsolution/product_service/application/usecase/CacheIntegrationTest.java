@@ -1,5 +1,6 @@
 package com.techsolution.product_service.application.usecase;
 
+import com.techsolution.product_service.application.mapper.ProductMapper;
 import com.techsolution.product_service.domain.Product;
 import com.techsolution.product_service.domain.ProductRepository;
 import com.techsolution.product_service.interfaces.dto.CreateProductRequest;
@@ -42,6 +43,9 @@ class CacheIntegrationTest {
     @Mock
     private ProductRepository productRepository;
 
+    @Mock
+    private ProductMapper productMapper;
+
     @InjectMocks
     private GetProductByIdUseCase getProductByIdUseCase;
 
@@ -74,7 +78,13 @@ class CacheIntegrationTest {
 
     @Test
     void shouldCallRepositoryOnGetProductByIdRequest() {
+        ProductResponse expectedResponse = new ProductResponse(
+                productId, product.getName(), product.getDescription(),
+                product.getPrice(), product.getStockQuantity()
+        );
+
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(productMapper.toResponse(product)).thenReturn(expectedResponse);
 
         ProductResponse response = getProductByIdUseCase.execute(productId);
 
@@ -82,6 +92,7 @@ class CacheIntegrationTest {
         assertThat(response.id()).isEqualTo(productId);
         // Em produção, segunda chamada com mesmo ID não chamaria o repositório (cache hit)
         verify(productRepository, times(1)).findById(productId);
+        verify(productMapper).toResponse(product);
     }
 
     @Test
@@ -93,8 +104,13 @@ class CacheIntegrationTest {
                 1L,
                 1
         );
+        List<ProductResponse> expectedResponses = List.of(
+                new ProductResponse(productId, product.getName(), product.getDescription(),
+                        product.getPrice(), product.getStockQuantity())
+        );
 
         when(productRepository.findAll(page, size)).thenReturn(pageResult);
+        when(productMapper.toResponseList(List.of(product))).thenReturn(expectedResponses);
 
         PageResponse<ProductResponse> response = listProductsUseCase.execute(page, size);
 
@@ -102,6 +118,7 @@ class CacheIntegrationTest {
         assertThat(response.content()).hasSize(1);
         // Em produção, segunda chamada com mesma página/tamanho não chamaria o repositório (cache hit)
         verify(productRepository, times(1)).findAll(page, size);
+        verify(productMapper).toResponseList(List.of(product));
     }
 
     @Test
@@ -112,14 +129,20 @@ class CacheIntegrationTest {
                 new BigDecimal("100.00"),
                 5
         );
+        ProductResponse expectedResponse = new ProductResponse(
+                productId, product.getName(), product.getDescription(),
+                product.getPrice(), product.getStockQuantity()
+        );
 
         when(productRepository.save(any(Product.class))).thenReturn(product);
+        when(productMapper.toResponse(product)).thenReturn(expectedResponse);
 
         ProductResponse response = createProductUseCase.execute(request);
 
         assertThat(response).isNotNull();
         // CreateProductUseCase tem @CacheEvict("productsPage") - invalida cache de listagem
         verify(productRepository).save(any(Product.class));
+        verify(productMapper).toResponse(product);
     }
 
     @Test
@@ -130,9 +153,14 @@ class CacheIntegrationTest {
                 new BigDecimal("200.00"),
                 15
         );
+        ProductResponse expectedResponse = new ProductResponse(
+                productId, "Updated Name", "Updated Description",
+                new BigDecimal("200.00"), 15
+        );
 
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
         when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(productMapper.toResponse(any(Product.class))).thenReturn(expectedResponse);
 
         ProductResponse response = updateProductUseCase.execute(productId, request);
 
@@ -140,18 +168,19 @@ class CacheIntegrationTest {
         // UpdateProductUseCase tem @CacheEvict({"product", "productsPage"}) - invalida ambos os caches
         verify(productRepository).findById(productId);
         verify(productRepository).save(any(Product.class));
+        verify(productMapper).toResponse(any(Product.class));
     }
 
     @Test
     void shouldCallRepositoryWhenDeletingProduct() {
-        when(productRepository.existsById(productId)).thenReturn(true);
-        doNothing().when(productRepository).deleteById(productId);
+        when(productRepository.existsByIdAndActive(productId)).thenReturn(true);
+        doNothing().when(productRepository).deactivateById(productId);
 
         deleteProductUseCase.execute(productId);
 
         // DeleteProductUseCase tem @CacheEvict({"product", "productsPage"}) - invalida ambos os caches
-        verify(productRepository).existsById(productId);
-        verify(productRepository).deleteById(productId);
+        verify(productRepository).existsByIdAndActive(productId);
+        verify(productRepository).deactivateById(productId);
     }
 
     @Test
@@ -171,9 +200,14 @@ class CacheIntegrationTest {
                 25L,
                 3
         );
+        List<ProductResponse> expectedResponses = List.of(
+                new ProductResponse(productId, product.getName(), product.getDescription(),
+                        product.getPrice(), product.getStockQuantity())
+        );
 
         when(productRepository.findAll(page1, size)).thenReturn(pageResult1);
         when(productRepository.findAll(page2, size)).thenReturn(pageResult2);
+        when(productMapper.toResponseList(List.of(product))).thenReturn(expectedResponses);
 
         PageResponse<ProductResponse> response1 = listProductsUseCase.execute(page1, size);
         PageResponse<ProductResponse> response2 = listProductsUseCase.execute(page2, size);
@@ -185,6 +219,7 @@ class CacheIntegrationTest {
         // Cada página deve ter sua própria chave de cache: "page:0:size:10" vs "page:1:size:10"
         verify(productRepository, times(1)).findAll(page1, size);
         verify(productRepository, times(1)).findAll(page2, size);
+        verify(productMapper, times(2)).toResponseList(List.of(product));
     }
 
     @Test
@@ -204,9 +239,14 @@ class CacheIntegrationTest {
                 25L,
                 2
         );
+        List<ProductResponse> expectedResponses = List.of(
+                new ProductResponse(productId, product.getName(), product.getDescription(),
+                        product.getPrice(), product.getStockQuantity())
+        );
 
         when(productRepository.findAll(page, size1)).thenReturn(pageResult1);
         when(productRepository.findAll(page, size2)).thenReturn(pageResult2);
+        when(productMapper.toResponseList(List.of(product))).thenReturn(expectedResponses);
 
         PageResponse<ProductResponse> response1 = listProductsUseCase.execute(page, size1);
         PageResponse<ProductResponse> response2 = listProductsUseCase.execute(page, size2);
@@ -218,6 +258,7 @@ class CacheIntegrationTest {
         // Cada tamanho deve ter sua própria chave de cache: "page:0:size:10" vs "page:0:size:20"
         verify(productRepository, times(1)).findAll(page, size1);
         verify(productRepository, times(1)).findAll(page, size2);
+        verify(productMapper, times(2)).toResponseList(List.of(product));
     }
 }
 

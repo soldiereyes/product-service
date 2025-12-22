@@ -187,12 +187,13 @@ class ProductRepositoryImplTest {
                 "Mouse",
                 "Mouse Logitech",
                 new BigDecimal("50.00"),
-                20
+                20,
+                true
         );
         List<ProductEntity> entities = Arrays.asList(productEntity, entity2);
         Page<ProductEntity> pageResult = new PageImpl<>(entities, pageable, 25L);
 
-        when(jpaProductRepository.findAll(pageable)).thenReturn(pageResult);
+        when(jpaProductRepository.findAllActive(pageable)).thenReturn(pageResult);
 
         ProductRepository.PageResult<Product> result = productRepositoryImpl.findAll(page, size);
 
@@ -203,7 +204,7 @@ class ProductRepositoryImplTest {
         assertThat(result.content().get(0).getId()).isEqualTo(productId);
         assertThat(result.content().get(1).getName()).isEqualTo("Mouse");
 
-        verify(jpaProductRepository).findAll(pageable);
+        verify(jpaProductRepository).findAllActive(pageable);
     }
 
     @Test
@@ -213,7 +214,7 @@ class ProductRepositoryImplTest {
         Pageable pageable = PageRequest.of(page, size);
         Page<ProductEntity> pageResult = new PageImpl<>(List.of(), pageable, 0L);
 
-        when(jpaProductRepository.findAll(pageable)).thenReturn(pageResult);
+        when(jpaProductRepository.findAllActive(pageable)).thenReturn(pageResult);
 
         ProductRepository.PageResult<Product> result = productRepositoryImpl.findAll(page, size);
 
@@ -222,7 +223,7 @@ class ProductRepositoryImplTest {
         assertThat(result.totalElements()).isZero();
         assertThat(result.totalPages()).isZero();
 
-        verify(jpaProductRepository).findAll(pageable);
+        verify(jpaProductRepository).findAllActive(pageable);
     }
 
     @Test
@@ -240,7 +241,7 @@ class ProductRepositoryImplTest {
                 totalElements
         );
 
-        when(jpaProductRepository.findAll(pageable)).thenReturn(pageResult);
+        when(jpaProductRepository.findAllActive(pageable)).thenReturn(pageResult);
 
         ProductRepository.PageResult<Product> result = productRepositoryImpl.findAll(page, size);
 
@@ -250,7 +251,7 @@ class ProductRepositoryImplTest {
         assertThat(result.totalElements()).isEqualTo(pageResult.getTotalElements());
         assertThat(result.totalPages()).isEqualTo(pageResult.getTotalPages());
 
-        verify(jpaProductRepository).findAll(pageable);
+        verify(jpaProductRepository).findAllActive(pageable);
     }
 }
 

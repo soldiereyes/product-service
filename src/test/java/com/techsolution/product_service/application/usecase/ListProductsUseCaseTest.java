@@ -137,8 +137,17 @@ class ListProductsUseCaseTest {
                 totalElements,
                 totalPages
         );
+        List<ProductResponse> expectedResponses = Arrays.asList(
+                new ProductResponse(products.get(0).getId(), products.get(0).getName(), 
+                        products.get(0).getDescription(), products.get(0).getPrice(), 
+                        products.get(0).getStockQuantity()),
+                new ProductResponse(products.get(1).getId(), products.get(1).getName(), 
+                        products.get(1).getDescription(), products.get(1).getPrice(), 
+                        products.get(1).getStockQuantity())
+        );
 
         when(productRepository.findAll(page, size)).thenReturn(pageResult);
+        when(productMapper.toResponseList(products)).thenReturn(expectedResponses);
 
         PageResponse<ProductResponse> response = listProductsUseCase.execute(page, size);
 
@@ -152,6 +161,7 @@ class ListProductsUseCaseTest {
         assertThat(response.last()).isFalse();
 
         verify(productRepository).findAll(page, size);
+        verify(productMapper).toResponseList(products);
     }
 
     @Test
@@ -204,84 +214,6 @@ class ListProductsUseCaseTest {
         verify(productRepository).findAll(page, size);
     }
 
-    @Test
-    void shouldListProductsWithPaginationSuccessfully() {
-        int page = 0;
-        int size = 10;
-        long totalElements = 25L;
-        int totalPages = 3;
-
-        ProductRepository.PageResult<Product> pageResult = new ProductRepository.PageResult<>(
-                products,
-                totalElements,
-                totalPages
-        );
-
-        when(productRepository.findAll(page, size)).thenReturn(pageResult);
-
-        PageResponse<ProductResponse> response = listProductsUseCase.execute(page, size);
-
-        assertThat(response).isNotNull();
-        assertThat(response.content()).hasSize(2);
-        assertThat(response.page()).isEqualTo(page);
-        assertThat(response.size()).isEqualTo(size);
-        assertThat(response.totalElements()).isEqualTo(totalElements);
-        assertThat(response.totalPages()).isEqualTo(totalPages);
-        assertThat(response.first()).isTrue();
-        assertThat(response.last()).isFalse();
-
-        verify(productRepository).findAll(page, size);
-    }
-
-    @Test
-    void shouldReturnEmptyPageWhenNoProductsWithPagination() {
-        int page = 0;
-        int size = 10;
-
-        ProductRepository.PageResult<Product> pageResult = new ProductRepository.PageResult<>(
-                List.of(),
-                0L,
-                0
-        );
-
-        when(productRepository.findAll(page, size)).thenReturn(pageResult);
-
-        PageResponse<ProductResponse> response = listProductsUseCase.execute(page, size);
-
-        assertThat(response).isNotNull();
-        assertThat(response.content()).isEmpty();
-        assertThat(response.totalElements()).isZero();
-        assertThat(response.totalPages()).isZero();
-        assertThat(response.first()).isTrue();
-        assertThat(response.last()).isTrue();
-
-        verify(productRepository).findAll(page, size);
-    }
-
-    @Test
-    void shouldHandleLastPageCorrectly() {
-        int page = 2;
-        int size = 10;
-        long totalElements = 25L;
-        int totalPages = 3;
-
-        ProductRepository.PageResult<Product> pageResult = new ProductRepository.PageResult<>(
-                products,
-                totalElements,
-                totalPages
-        );
-
-        when(productRepository.findAll(page, size)).thenReturn(pageResult);
-
-        PageResponse<ProductResponse> response = listProductsUseCase.execute(page, size);
-
-        assertThat(response).isNotNull();
-        assertThat(response.first()).isFalse();
-        assertThat(response.last()).isTrue();
-        assertThat(response.page()).isEqualTo(page);
-
-        verify(productRepository).findAll(page, size);
-    }
 }
 
 
