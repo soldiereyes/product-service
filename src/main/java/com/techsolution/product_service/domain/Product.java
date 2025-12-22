@@ -9,16 +9,18 @@ public class Product {
     private String description;
     private BigDecimal price;
     private Integer stockQuantity;
+    private Boolean active;
 
     public Product() {
     }
 
-    public Product(UUID id, String name, String description, BigDecimal price, Integer stockQuantity) {
+    public Product(UUID id, String name, String description, BigDecimal price, Integer stockQuantity, Boolean active) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
         this.stockQuantity = stockQuantity;
+        this.active = active != null ? active : true;
         validate();
     }
 
@@ -28,6 +30,17 @@ public class Product {
         this.description = description;
         this.price = price;
         this.stockQuantity = stockQuantity;
+        this.active = true;
+        validate();
+    }
+
+    public Product(UUID id, String name, String description, BigDecimal price, Integer stockQuantity) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.stockQuantity = stockQuantity;
+        this.active = true;
         validate();
     }
 
@@ -76,5 +89,21 @@ public class Product {
 
     public Integer getStockQuantity() {
         return stockQuantity;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active != null ? active : true;
+    }
+
+    public void deactivate() {
+        this.active = false;
+    }
+
+    public boolean isActive() {
+        return active != null && active;
     }
 }

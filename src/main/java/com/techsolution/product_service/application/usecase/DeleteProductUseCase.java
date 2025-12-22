@@ -21,14 +21,14 @@ public class DeleteProductUseCase {
 
     @Transactional
     public void execute(UUID id) {
-        logger.debug("Executing DeleteProductUseCase for product id: {}", id);
+        logger.debug("Executing DeleteProductUseCase (deactivate) for product id: {}", id);
         
-        if (!productRepository.existsById(id)) {
+        if (!productRepository.existsByIdAndActive(id)) {
             throw new ResourceNotFoundException("Product", id);
         }
 
-        productRepository.deleteById(id);
-        logger.debug("Product deleted successfully with id: {}", id);
+        productRepository.deactivateById(id);
+        logger.info("Product deactivated successfully with id: {}", id);
     }
 }
 

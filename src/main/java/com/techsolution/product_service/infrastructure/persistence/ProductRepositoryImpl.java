@@ -36,34 +36,34 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public Optional<Product> findById(UUID id) {
-        logger.debug("Finding product by id: {}", id);
-        Optional<Product> result = jpaProductRepository.findById(id)
+        logger.debug("Finding active product by id: {}", id);
+        Optional<Product> result = jpaProductRepository.findByIdAndActive(id)
                 .map(this::toDomain);
-        logger.debug("Product {} found: {}", id, result.isPresent());
+        logger.debug("Active product {} found: {}", id, result.isPresent());
         return result;
     }
 
     @Override
     public List<Product> findAll() {
-        logger.debug("Finding all products");
-        List<Product> products = jpaProductRepository.findAll().stream()
+        logger.debug("Finding all active products");
+        List<Product> products = jpaProductRepository.findAllActive().stream()
                 .map(this::toDomain)
                 .toList();
-        logger.debug("Found {} products", products.size());
+        logger.debug("Found {} active products", products.size());
         return products;
     }
 
     @Override
     public ProductRepository.PageResult<Product> findAll(int page, int size) {
-        logger.debug("Finding products with pagination - page: {}, size: {}", page, size);
+        logger.debug("Finding active products with pagination - page: {}, size: {}", page, size);
         Pageable pageable = PageRequest.of(page, size);
-        Page<ProductEntity> pageResult = jpaProductRepository.findAll(pageable);
+        Page<ProductEntity> pageResult = jpaProductRepository.findAllActive(pageable);
         
         List<Product> products = pageResult.getContent().stream()
                 .map(this::toDomain)
                 .toList();
         
-        logger.debug("Found {} products (page {} of {})", 
+        logger.debug("Found {} active products (page {} of {})", 
                 products.size(), page, pageResult.getTotalPages());
         
         return new ProductRepository.PageResult<>(
@@ -74,10 +74,10 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public void deleteById(UUID id) {
-        logger.debug("Deleting product by id: {}", id);
-        jpaProductRepository.deleteById(id);
-        logger.debug("Product deleted successfully with id: {}", id);
+    public void deactivateById(UUID id) {
+        logger.debug("Deactivating product by id: {}", id);
+        jpaProductRepository.deactivateById(id);
+        logger.debug("Product deactivated successfully with id: {}", id);
     }
 
     @Override
@@ -88,13 +88,22 @@ public class ProductRepositoryImpl implements ProductRepository {
         return exists;
     }
 
+    @Override
+    public boolean existsByIdAndActive(UUID id) {
+        logger.debug("Checking if active product exists with id: {}", id);
+        boolean exists = jpaProductRepository.existsByIdAndActive(id);
+        logger.debug("Active product {} exists: {}", id, exists);
+        return exists;
+    }
+
     private ProductEntity toEntity(Product product) {
         return new ProductEntity(
                 product.getId(),
                 product.getName(),
                 product.getDescription(),
                 product.getPrice(),
-                product.getStockQuantity()
+                product.getStockQuantity(),
+                product.getActive()
         );
     }
 
@@ -104,7 +113,8 @@ public class ProductRepositoryImpl implements ProductRepository {
                 entity.getName(),
                 entity.getDescription(),
                 entity.getPrice(),
-                entity.getStockQuantity()
+                entity.getStockQuantity(),
+                entity.getActive()
         );
     }
 }
