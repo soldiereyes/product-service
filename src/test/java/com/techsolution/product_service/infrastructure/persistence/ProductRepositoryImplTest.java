@@ -1,6 +1,7 @@
 package com.techsolution.product_service.infrastructure.persistence;
 
 import com.techsolution.product_service.domain.Product;
+import com.techsolution.product_service.domain.ProductRepository;
 import com.techsolution.product_service.infrastructure.persistence.entity.ProductEntity;
 import com.techsolution.product_service.infrastructure.persistence.jpa.JpaProductRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +10,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -146,6 +151,83 @@ class ProductRepositoryImplTest {
 
         assertThat(exists).isFalse();
         verify(jpaProductRepository).existsById(productId);
+    }
+
+    @Test
+    void shouldFindAllProductsWithPagination() {
+        int page = 0;
+        int size = 10;
+        Pageable pageable = PageRequest.of(page, size);
+
+        ProductEntity entity2 = new ProductEntity(
+                UUID.randomUUID(),
+                "Mouse",
+                "Mouse Logitech",
+                new BigDecimal("50.00"),
+                20
+        );
+        List<ProductEntity> entities = Arrays.asList(productEntity, entity2);
+        Page<ProductEntity> pageResult = new PageImpl<>(entities, pageable, 25L);
+
+        when(jpaProductRepository.findAll(pageable)).thenReturn(pageResult);
+
+        ProductRepository.PageResult<Product> result = productRepositoryImpl.findAll(page, size);
+
+        assertThat(result).isNotNull();
+        assertThat(result.content()).hasSize(2);
+        assertThat(result.totalElements()).isEqualTo(25L);
+        assertThat(result.totalPages()).isEqualTo(3);
+        assertThat(result.content().get(0).getId()).isEqualTo(productId);
+        assertThat(result.content().get(1).getName()).isEqualTo("Mouse");
+
+        verify(jpaProductRepository).findAll(pageable);
+    }
+
+    @Test
+    void shouldReturnEmptyPageWhenNoProductsWithPagination() {
+        int page = 0;
+        int size = 10;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductEntity> pageResult = new PageImpl<>(List.of(), pageable, 0L);
+
+        when(jpaProductRepository.findAll(pageable)).thenReturn(pageResult);
+
+        ProductRepository.PageResult<Product> result = productRepositoryImpl.findAll(page, size);
+
+        assertThat(result).isNotNull();
+        assertThat(result.content()).isEmpty();
+        assertThat(result.totalElements()).isZero();
+        assertThat(result.totalPages()).isZero();
+
+        verify(jpaProductRepository).findAll(pageable);
+    }
+
+    @Test
+    void shouldHandleLastPageCorrectly() {
+        int page = 2;
+        int size = 10;
+        long totalElements = 25L;
+        int totalPages = 3;
+        Pageable pageable = PageRequest.of(page, size);
+        
+        // Criar PageImpl com totalElements explícito
+        Page<ProductEntity> pageResult = new PageImpl<>(
+                List.of(productEntity), 
+                pageable, 
+                totalElements
+        );
+
+        when(jpaProductRepository.findAll(pageable)).thenReturn(pageResult);
+
+        ProductRepository.PageResult<Product> result = productRepositoryImpl.findAll(page, size);
+
+        assertThat(result).isNotNull();
+        assertThat(result.content()).hasSize(1);
+        // Verificar que o totalElements foi passado corretamente
+        assertThat(result.totalElements()).isEqualTo(pageResult.getTotalElements());
+        assertThat(result.totalPages()).isEqualTo(pageResult.getTotalPages());
+
+        verify(jpaProductRepository).findAll(pageable);
     }
 }
 
