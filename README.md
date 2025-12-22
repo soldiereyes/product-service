@@ -9,6 +9,7 @@ Serviço de gerenciamento de produtos desenvolvido com Spring Boot 4, seguindo p
 - **PostgreSQL**
 - **Flyway** (migrações de banco de dados)
 - **Docker & Docker Compose**
+- **Redis** (cache - disponível em branch separada)
 
 ## Arquitetura
 
@@ -45,7 +46,7 @@ src/main/java/com/techsolution/product_service/
 - **GET** `/products/{id}` - Buscar produto por ID
 - **GET** `/products` - Listar produtos (com paginação)
 - **PUT** `/products/{id}` - Atualizar produto
-- **DELETE** `/products/{id}` - Deletar produto
+- **DELETE** `/products/{id}` - Desativar produto (soft delete)
 
 ### Paginação
 
@@ -200,11 +201,15 @@ curl -X PUT http://localhost:8081/products/{id} \
   }'
 ```
 
-### Deletar Produto
+### Desativar Produto
+
+O endpoint `DELETE /products/{id}` realiza uma **desativação** (soft delete) do produto, mantendo-o no banco de dados mas marcando-o como inativo. Isso preserva a integridade dos dados e evita erros de referência.
 
 ```bash
 curl -X DELETE http://localhost:8081/products/{id}
 ```
+
+**Importante:** Produtos desativados não aparecem nas listagens (`GET /products`) e não podem ser recuperados por ID (`GET /products/{id}`). Apenas produtos ativos são retornados pela API.
 
 ## Tratamento de Erros
 
@@ -240,7 +245,74 @@ O serviço utiliza SLF4J para logging estruturado:
 As migrações são gerenciadas pelo Flyway e estão localizadas em:
 `src/main/resources/db/migration/`
 
-A migração inicial cria a tabela `products` com todas as constraints necessárias.
+**Migrações disponíveis:**
+- `V1__create_products_table.sql` - Cria a tabela `products` com todas as constraints necessárias
+- `V2__add_active_column_to_products.sql` - Adiciona a coluna `active` para suportar desativação de produtos (soft delete)
+
+As migrações são executadas automaticamente na inicialização da aplicação.
+
+## Importação Automática de Produtos
+
+O projeto inclui um script para importação automática de produtos a partir de um arquivo JSON.
+
+### Pré-requisitos
+
+- `jq` instalado (ferramenta para processar JSON no terminal)
+- Serviço rodando em `http://localhost:8081`
+- Arquivo `products-sample.json` com array de produtos no formato:
+
+```json
+[
+  {
+    "name": "Produto 1",
+    "description": "Descrição do produto 1",
+    "price": 100.00,
+    "stockQuantity": 10
+  },
+  {
+    "name": "Produto 2",
+    "description": "Descrição do produto 2",
+    "price": 200.00,
+    "stockQuantity": 20
+  }
+]
+```
+
+### Executando a Importação
+
+```bash
+# Dar permissão de execução (apenas na primeira vez)
+chmod +x import-products.sh
+
+# Executar o script
+./import-products.sh
+```
+
+O script irá:
+- Ler todos os produtos do arquivo `products-sample.json`
+- Cadastrar cada produto via API REST
+- Exibir o progresso e resultado de cada cadastro
+- Mostrar um resumo final com total de sucessos e erros
+
+**Nota:** O script processa os produtos sequencialmente e exibe mensagens de sucesso (✓) ou erro (✗) para cada item.
+
+## Cache com Redis
+
+A implementação de cache com Redis está disponível em uma **branch separada**. Para utilizar:
+
+```bash
+# Trocar para a branch de cache
+git checkout cache
+
+# Ou criar uma nova branch baseada na cache
+git checkout -b minha-branch cache
+```
+
+A branch de cache inclui:
+- Configuração do Redis via Docker Compose
+- Anotações `@Cacheable` e `@CacheEvict` nos UseCases
+- Serialização JSON para objetos em cache
+- TTL configurável por tipo de cache
 
 ## Testes
 
@@ -290,7 +362,5 @@ while (hasMore) {
     page++;
 }
 ```
-
-
 
 
