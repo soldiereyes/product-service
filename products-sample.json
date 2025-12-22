@@ -1,0 +1,249 @@
+[
+  {
+    "name": "Notebook Dell Inspiron 15",
+    "description": "Notebook Dell Inspiron 15 3000, Intel Core i5, 8GB RAM, 256GB SSD",
+    "price": 3500.00,
+    "stockQuantity": 12
+  },
+  {
+    "name": "Mouse Logitech MX Master 3",
+    "description": "Mouse sem fio Logitech MX Master 3, recarregável, sensor de alta precisão",
+    "price": 450.00,
+    "stockQuantity": 25
+  },
+  {
+    "name": "Teclado Mecânico RGB",
+    "description": "Teclado mecânico com switches Cherry MX, iluminação RGB, layout ABNT2",
+    "price": 650.00,
+    "stockQuantity": 18
+  },
+  {
+    "name": "Monitor LG UltraWide 29",
+    "description": "Monitor LG 29 polegadas UltraWide Full HD, IPS, 75Hz, HDMI e DisplayPort",
+    "price": 1200.00,
+    "stockQuantity": 8
+  },
+  {
+    "name": "Webcam Logitech C920",
+    "description": "Webcam Full HD 1080p, microfone estéreo, ajuste automático de luz",
+    "price": 380.00,
+    "stockQuantity": 15
+  },
+  {
+    "name": "SSD Samsung 1TB",
+    "description": "SSD Samsung 970 EVO Plus 1TB NVMe M.2, leitura 3500MB/s",
+    "price": 550.00,
+    "stockQuantity": 30
+  },
+  {
+    "name": "Memória RAM Kingston 16GB",
+    "description": "Memória RAM Kingston Fury Beast 16GB DDR4 3200MHz",
+    "price": 320.00,
+    "stockQuantity": 22
+  },
+  {
+    "name": "Placa de Vídeo RTX 3060",
+    "description": "Placa de vídeo NVIDIA GeForce RTX 3060 12GB GDDR6",
+    "price": 2800.00,
+    "stockQuantity": 5
+  },
+  {
+    "name": "Fonte Corsair 750W",
+    "description": "Fonte Corsair RM750x 750W 80 Plus Gold, modular",
+    "price": 680.00,
+    "stockQuantity": 10
+  },
+  {
+    "name": "Gabinete Gamer RGB",
+    "description": "Gabinete gamer com iluminação RGB, 3 ventoinhas incluídas, vidro temperado",
+    "price": 420.00,
+    "stockQuantity": 14
+  },
+  {
+    "name": "Headset HyperX Cloud II",
+    "description": "Headset gamer HyperX Cloud II, som surround 7.1, microfone removível",
+    "price": 580.00,
+    "stockQuantity": 20
+  },
+  {
+    "name": "Tablet Samsung Galaxy Tab S8",
+    "description": "Tablet Samsung Galaxy Tab S8 11 polegadas, 128GB, S Pen incluído",
+    "price": 3200.00,
+    "stockQuantity": 7
+  },
+  {
+    "name": "Smartphone Xiaomi Redmi Note 12",
+    "description": "Smartphone Xiaomi Redmi Note 12, 128GB, 6GB RAM, câmera 50MP",
+    "price": 1200.00,
+    "stockQuantity": 35
+  },
+  {
+    "name": "Smartwatch Apple Watch Series 9",
+    "description": "Apple Watch Series 9 GPS 45mm, pulseira esportiva, resistente à água",
+    "price": 3500.00,
+    "stockQuantity": 9
+  },
+  {
+    "name": "Fone de Ouvido AirPods Pro",
+    "description": "Apple AirPods Pro 2ª geração, cancelamento de ruído ativo, carregamento sem fio",
+    "price": 1800.00,
+    "stockQuantity": 16
+  },
+  {
+    "name": "Caixa de Som JBL Charge 5",
+    "description": "Caixa de som Bluetooth JBL Charge 5, à prova d'água, bateria 20h",
+    "price": 850.00,
+    "stockQuantity": 12
+  },
+  {
+    "name": "Roteador TP-Link Archer AX50",
+    "description": "Roteador Wi-Fi 6 TP-Link Archer AX50, dual-band, 3000Mbps",
+    "price": 450.00,
+    "stockQuantity": 18
+  },
+  {
+    "name": "HD Externo Seagate 2TB",
+    "description": "HD Externo Seagate Expansion 2TB USB 3.0, portátil",
+    "price": 380.00,
+    "stockQuantity": 24
+  },
+  {
+    "name": "Impressora HP LaserJet Pro",
+    "description": "Impressora HP LaserJet Pro M15w, wireless, impressão rápida",
+    "price": 750.00,
+    "stockQuantity": 11
+  },
+  {
+    "name": "Scanner Epson Perfection V600",
+    "description": "Scanner de mesa Epson Perfection V600, resolução 6400 dpi",
+    "price": 1200.00,
+    "stockQuantity": 6
+  },
+  {
+    "name": "Câmera Canon EOS Rebel T8i",
+    "description": "Câmera DSLR Canon EOS Rebel T8i, 24.1MP, lente 18-55mm",
+    "price": 4500.00,
+    "stockQuantity": 4
+  },
+  {
+    "name": "Tripé Manfrotto Compact",
+    "description": "Tripé Manfrotto Compact Action, altura máxima 142cm, peso 1.2kg",
+    "price": 280.00,
+    "stockQuantity": 19
+  },
+  {
+    "name": "Microfone Blue Yeti",
+    "description": "Microfone USB Blue Yeti, condensador, 4 padrões de captação",
+    "price": 950.00,
+    "stockQuantity": 8
+  },
+  {
+    "name": "Mesa Digitalizadora Wacom Intuos",
+    "description": "Mesa digitalizadora Wacom Intuos Pro M, caneta sem bateria",
+    "price": 2200.00,
+    "stockQuantity": 5
+  },
+  {
+    "name": "Hub USB-C 7 em 1",
+    "description": "Hub USB-C com 7 portas: HDMI, USB 3.0, SD/TF, PD, Ethernet",
+    "price": 180.00,
+    "stockQuantity": 32
+  },
+  {
+    "name": "Carregador Wireless Samsung",
+    "description": "Carregador wireless Samsung Fast Charge, compatível com Qi",
+    "price": 120.00,
+    "stockQuantity": 28
+  },
+  {
+    "name": "Cabo USB-C Thunderbolt 3",
+    "description": "Cabo USB-C Thunderbolt 3, 2 metros, suporte 40Gbps",
+    "price": 95.00,
+    "stockQuantity": 40
+  },
+  {
+    "name": "Cooler para Notebook",
+    "description": "Cooler para notebook com 5 ventoinhas, USB, altura ajustável",
+    "price": 85.00,
+    "stockQuantity": 26
+  },
+  {
+    "name": "Mochila para Notebook",
+    "description": "Mochila para notebook até 17 polegadas, compartimento acolchoado, USB externo",
+    "price": 220.00,
+    "stockQuantity": 17
+  },
+  {
+    "name": "Protetor de Tela Anti-Reflexo",
+    "description": "Protetor de tela anti-reflexo para notebook 15.6 polegadas, HD",
+    "price": 45.00,
+    "stockQuantity": 38
+  },
+  {
+    "name": "Mousepad Gamer Grande",
+    "description": "Mousepad gamer 90x40cm, superfície de tecido, base antiderrapante",
+    "price": 65.00,
+    "stockQuantity": 29
+  },
+  {
+    "name": "Suporte para Monitor Duplo",
+    "description": "Suporte para monitor duplo, ajustável, suporta até 27 polegadas",
+    "price": 320.00,
+    "stockQuantity": 13
+  },
+  {
+    "name": "Luminária de Mesa LED",
+    "description": "Luminária de mesa LED com controle de brilho e temperatura de cor",
+    "price": 150.00,
+    "stockQuantity": 21
+  },
+  {
+    "name": "Organizador de Cabos",
+    "description": "Organizador de cabos com clips, velcro, para mesa de escritório",
+    "price": 35.00,
+    "stockQuantity": 45
+  },
+  {
+    "name": "Filtro de Luz Azul",
+    "description": "Filtro de luz azul para monitor 24 polegadas, reduz cansaço visual",
+    "price": 55.00,
+    "stockQuantity": 16
+  },
+  {
+    "name": "Webcam Logitech Brio 4K",
+    "description": "Webcam Logitech Brio 4K Ultra HD, HDR, zoom digital 5x",
+    "price": 1200.00,
+    "stockQuantity": 6
+  },
+  {
+    "name": "Microfone de Lapela Wireless",
+    "description": "Microfone de lapela wireless, Bluetooth, cancelamento de ruído",
+    "price": 280.00,
+    "stockQuantity": 14
+  },
+  {
+    "name": "Gravador de Áudio Zoom H5",
+    "description": "Gravador de áudio portátil Zoom H5, 4 canais, X/Y microfone",
+    "price": 1800.00,
+    "stockQuantity": 3
+  },
+  {
+    "name": "Placa de Captura Elgato HD60 S",
+    "description": "Placa de captura Elgato HD60 S, 1080p60, streaming e gravação",
+    "price": 950.00,
+    "stockQuantity": 7
+  },
+  {
+    "name": "Luz de Ring LED",
+    "description": "Luz de ring LED 18 polegadas, ajustável, tripé incluído, USB",
+    "price": 320.00,
+    "stockQuantity": 11
+  },
+  {
+    "name": "Fundo Verde Chroma Key",
+    "description": "Fundo verde chroma key 3x2 metros, tecido, sem dobras",
+    "price": 180.00,
+    "stockQuantity": 9
+  }
+]
+
