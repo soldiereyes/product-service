@@ -305,7 +305,7 @@ A implementação de cache com Redis está disponível em uma **branch separada*
 git checkout cache
 
 # Ou criar uma nova branch baseada na cache
-git checkout -b minha-branch cache
+git checkout -b feature/implementacao-do-redis
 ```
 
 A branch de cache inclui:
