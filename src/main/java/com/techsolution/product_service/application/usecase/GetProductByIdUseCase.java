@@ -4,7 +4,7 @@ import com.techsolution.product_service.application.mapper.ProductMapper;
 import com.techsolution.product_service.domain.Product;
 import com.techsolution.product_service.domain.ProductRepository;
 import com.techsolution.product_service.domain.exception.ResourceNotFoundException;
-import com.techsolution.product_service.interfaces.dto.ProductResponse;
+import com.techsolution.product_service.api.dto.ProductResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

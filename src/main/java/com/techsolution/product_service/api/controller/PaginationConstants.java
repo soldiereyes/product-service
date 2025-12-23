@@ -1,4 +1,4 @@
-package com.techsolution.product_service.interfaces.controller;
+package com.techsolution.product_service.api.controller;
 
 /**
  * Constantes relacionadas à paginação de produtos.

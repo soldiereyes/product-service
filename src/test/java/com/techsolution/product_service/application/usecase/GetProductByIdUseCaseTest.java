@@ -4,7 +4,7 @@ import com.techsolution.product_service.application.mapper.ProductMapper;
 import com.techsolution.product_service.domain.Product;
 import com.techsolution.product_service.domain.ProductRepository;
 import com.techsolution.product_service.domain.exception.ResourceNotFoundException;
-import com.techsolution.product_service.interfaces.dto.ProductResponse;
+import com.techsolution.product_service.api.dto.ProductResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

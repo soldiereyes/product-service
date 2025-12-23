@@ -1,8 +1,8 @@
-package com.techsolution.product_service.interfaces.exception;
+package com.techsolution.product_service.api.exception;
 
 import com.techsolution.product_service.domain.exception.BusinessException;
 import com.techsolution.product_service.domain.exception.ResourceNotFoundException;
-import com.techsolution.product_service.interfaces.dto.ErrorResponse;
+import com.techsolution.product_service.api.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;

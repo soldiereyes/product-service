@@ -1,15 +1,14 @@
-package com.techsolution.product_service.interfaces.controller;
+package com.techsolution.product_service.api.controller;
 
 import com.techsolution.product_service.application.usecase.CreateProductUseCase;
 import com.techsolution.product_service.application.usecase.DeleteProductUseCase;
 import com.techsolution.product_service.application.usecase.GetProductByIdUseCase;
 import com.techsolution.product_service.application.usecase.ListProductsUseCase;
 import com.techsolution.product_service.application.usecase.UpdateProductUseCase;
-import com.techsolution.product_service.interfaces.controller.PaginationValidator;
-import com.techsolution.product_service.interfaces.dto.CreateProductRequest;
-import com.techsolution.product_service.interfaces.dto.PageResponse;
-import com.techsolution.product_service.interfaces.dto.ProductResponse;
-import com.techsolution.product_service.interfaces.dto.UpdateProductRequest;
+import com.techsolution.product_service.api.dto.CreateProductRequest;
+import com.techsolution.product_service.api.dto.PageResponse;
+import com.techsolution.product_service.api.dto.ProductResponse;
+import com.techsolution.product_service.api.dto.UpdateProductRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

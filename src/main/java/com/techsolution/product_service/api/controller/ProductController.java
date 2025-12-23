@@ -1,15 +1,14 @@
-package com.techsolution.product_service.interfaces.controller;
+package com.techsolution.product_service.api.controller;
 
 import com.techsolution.product_service.application.usecase.CreateProductUseCase;
 import com.techsolution.product_service.application.usecase.DeleteProductUseCase;
 import com.techsolution.product_service.application.usecase.GetProductByIdUseCase;
 import com.techsolution.product_service.application.usecase.ListProductsUseCase;
 import com.techsolution.product_service.application.usecase.UpdateProductUseCase;
-import com.techsolution.product_service.interfaces.controller.PaginationValidator;
-import com.techsolution.product_service.interfaces.dto.CreateProductRequest;
-import com.techsolution.product_service.interfaces.dto.PageResponse;
-import com.techsolution.product_service.interfaces.dto.ProductResponse;
-import com.techsolution.product_service.interfaces.dto.UpdateProductRequest;
+import com.techsolution.product_service.api.dto.CreateProductRequest;
+import com.techsolution.product_service.api.dto.PageResponse;
+import com.techsolution.product_service.api.dto.ProductResponse;
+import com.techsolution.product_service.api.dto.UpdateProductRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController

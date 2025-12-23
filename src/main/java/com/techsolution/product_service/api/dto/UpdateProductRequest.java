@@ -1,4 +1,4 @@
-package com.techsolution.product_service.interfaces.dto;
+package com.techsolution.product_service.api.dto;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
-public record CreateProductRequest(
+public record UpdateProductRequest(
         @NotBlank(message = "Name is required")
         String name,
 

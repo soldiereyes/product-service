@@ -1,4 +1,4 @@
-package com.techsolution.product_service.interfaces.exception;
+package com.techsolution.product_service.api.exception;
 
 /**
  * Enum que representa os tipos de erro tratados pelo GlobalExceptionHandler.

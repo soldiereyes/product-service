@@ -1,7 +1,7 @@
 package com.techsolution.product_service.application.mapper;
 
 import com.techsolution.product_service.domain.Product;
-import com.techsolution.product_service.interfaces.dto.ProductResponse;
+import com.techsolution.product_service.api.dto.ProductResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

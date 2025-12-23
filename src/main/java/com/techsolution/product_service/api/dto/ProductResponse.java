@@ -1,4 +1,4 @@
-package com.techsolution.product_service.interfaces.dto;
+package com.techsolution.product_service.api.dto;
 
 import java.math.BigDecimal;
 import java.util.UUID;
